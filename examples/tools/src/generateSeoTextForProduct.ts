@@ -65,6 +65,21 @@ export default function(serverConfig: ServerConfig): ToolDefinition {
                     longDescription: product.longDescription || '',
                     status: 'product-data-loaded'
                 }
+                // Prompt
+                const promptSeoInstruction = `
+                Du bist Experte im Schreiben von SEO-optimierten Produkttexten.
+                Du erhälst Produktinformationen zu einem Produkt.
+                Erstelle daraus einen kurzen SEO-optimierten Produkttext für einen Onlineshop.
+                Der Text soll 2 bis 3 Sätze lang sein.
+                Nutze dafür nur die bereitgestellten Informationen.
+                Erfinde keine zusätzlichen Eigenschaften.
+                `;
+
+                const finalPrompt = `
+                ${promptSeoInstruction}
+                Produktname:${mappedProductData.productName}
+                Beschreibung:${mappedProductData.longDescription}
+                `;
                 return {
                     content: [
                         {
