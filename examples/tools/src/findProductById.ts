@@ -21,13 +21,14 @@ export default function (serverConfig: ServerConfig): ToolDefinition {
         productName: z.string().optional().describe('The name of the product.'),
         internalName: z.string().optional().describe('The technical name of the product.'),
         description: z.string().optional().describe('A brief description of the product.'),
-        productTypeId: z.string().optional().describe('The type identifier of the product.')
+        productTypeId: z.string().optional().describe('The type identifier of the product.'),
+        longDescription: z.string().optional().describe('The type identifier of the product.')
       }
     },
     handler: async ({ id }: { id: string }, request: express.Request) => {
       const idParam = { idToFind: id };
       const inParams = encodeURIComponent(JSON.stringify(idParam));
-      const backendUrl = `${serverConfig.BACKEND_API_BASE}/rest/services/findProductById?inParams=${inParams}`;
+      const backendUrl = `${serverConfig.BACKEND_API_BASE}/rest/services/findProductByIdMcp?inParams=${inParams}`;
 
       const requestOptions: { method: string; headers: Record<string, string> } = {
         method: 'GET',
@@ -59,7 +60,8 @@ export default function (serverConfig: ServerConfig): ToolDefinition {
           productName: responseData.data.product.productName || '',
           internalName: responseData.data.product.internalName || '',
           description: responseData.data.product.description || '',
-          productTypeId: responseData.data.product.productTypeId || ''
+          productTypeId: responseData.data.product.productTypeId || '',
+          longDescription: responseData.data.product.longDescription || ''
         };
         return {
           content: [
