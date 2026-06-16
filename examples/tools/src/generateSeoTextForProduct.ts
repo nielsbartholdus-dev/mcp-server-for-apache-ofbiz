@@ -21,7 +21,8 @@ export default function(serverConfig: ServerConfig): ToolDefinition {
                 productName: z.string().optional().describe('The name of the product.'),
                 originalText: z.string().optional().describe('The original product text used as input.'),
                 generatedText: z.string().optional().describe('The generated SEO text.'),
-                status: z.string().describe('Status of the SEO text generation.')
+                status: z.string().describe('Status of the SEO text generation.'),
+                longDescription: z.string().describe('The type identifier of the product.')
             }
         },
         handler: async ({ productId }: { productId: string }, request: express.Request) => {
@@ -51,17 +52,27 @@ export default function(serverConfig: ServerConfig): ToolDefinition {
 
                 const rawProductResponse = await response.json();
 
+                // mapping
+                const product = rawProductResponse.data.product;
+
+                if (!product) {
+                    throw new Error('Product not found in REST response');
+                }
+
+                const mappedProductData = {
+                    productId: product.productId || '',
+                    productName: product.productName || '',
+                    longDescription: product.longDescription || '',
+                    status: 'product-data-loaded'
+                }
                 return {
                     content: [
                         {
                             type: 'text',
-                            text: JSON.stringify(rawProductResponse)
+                            text: JSON.stringify(mappedProductData)
                         }
                     ],
-                    structuredContent: {
-                        productId,
-                        status: 'raw-product-data-load'
-                    }
+                    structuredContent: mappedProductData
                 };
             } catch (error) {
                 console.error('Error loading product data:', error);
