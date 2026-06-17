@@ -22,7 +22,6 @@ export default function(serverConfig: ServerConfig): ToolDefinition {
                 originalText: z.string().optional().describe('The original product text used as input.'),
                 generatedText: z.string().optional().describe('The generated SEO text.'),
                 status: z.string().describe('Status of the SEO text generation.'),
-                longDescription: z.string().describe('The type identifier of the product.')
             }
         },
         handler: async ({ productId }: { productId: string }, request: express.Request) => {
@@ -62,7 +61,7 @@ export default function(serverConfig: ServerConfig): ToolDefinition {
                 const mappedProductData = {
                     productId: product.productId || '',
                     productName: product.productName || '',
-                    longDescription: product.longDescription || '',
+                    originalText: product.longDescription || '',
                     status: 'product-data-loaded'
                 }
                 // Prompt
@@ -78,24 +77,75 @@ export default function(serverConfig: ServerConfig): ToolDefinition {
                 const finalPrompt = `
                 ${promptSeoInstruction}
                 Produktname:${mappedProductData.productName}
-                Beschreibung:${mappedProductData.longDescription}
+                Beschreibung:${mappedProductData.originalText}
                 `;
+
+                // lokales LLM aufrufen
+                const llmUrl = 'http://localhost:11434/v1/chat/completions';
+                const llmModel = 'qwen2.5:3b';
+                const temperature = 0.2;
+
+                const llmRequestBody = {
+                    model: llmModel,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: finalPrompt
+                        }
+
+                    ],
+                    temperature,
+                    stream: false
+                }
+
+                const llmRequestOptions: { method: string; headers: Record<string, string>; body: string } = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    },
+                    body: JSON.stringify(llmRequestBody)
+                };
+
+                const llmResponse = await fetch(llmUrl, llmRequestOptions);
+
+                if (!llmResponse.ok) {
+                    throw new Error(`LLM request failed with status: ${llmResponse.status}`);
+                }
+
+                const llmResponseJson = await llmResponse.json();
+
+                const generatedText = llmResponseJson.choices[0].message.content.trim();
+
+                if (!generatedText) {
+                    throw new Error('No generated text found in LLM response');
+                }
+
+                const toolResponse = {
+                    productId: mappedProductData.productId,
+                    productName: mappedProductData.productName,
+                    originalText: mappedProductData.originalText,
+                    generatedText: generatedText,
+                    status: 'success',
+                    model: llmModel
+                }
+
                 return {
                     content: [
                         {
                             type: 'text',
-                            text: JSON.stringify(mappedProductData)
+                            text: JSON.stringify(toolResponse)
                         }
                     ],
-                    structuredContent: mappedProductData
+                    structuredContent: toolResponse
                 };
             } catch (error) {
-                console.error('Error loading product data:', error);
+                console.error('Error generating SEO text:', error);
                 return {
                     content: [
                         {
                             type: 'text',
-                            text: `Error loading product data: ${error instanceof Error ? error.message : 'Unknown error'}`
+                            text: `Error generating SEO text: ${error instanceof Error ? error.message : 'Unknown error'}`
                         }
                     ],
                     isError: true
@@ -104,4 +154,3 @@ export default function(serverConfig: ServerConfig): ToolDefinition {
         }
     }
 }
-
