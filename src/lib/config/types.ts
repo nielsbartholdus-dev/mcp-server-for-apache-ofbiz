@@ -32,6 +32,13 @@ export interface ServerConfig {
   TLS_KEY_PATH?: string;
   TLS_CERT_PATH?: string;
   TLS_KEY_PASSPHRASE?: string;
+
+  // LLM configuration
+  LLM_CHAT_COMPLETIONS_URL?: string;
+  LLM_MODELL_3B?: string;
+  LLM_MODELL_8B?: string;
+  LLM_API_KEY?: string;
+  LLM_TEMPERATURE?: string | number;
 }
 
 export interface RuntimeConfig {

@@ -117,10 +117,23 @@ export default function(serverConfig: ServerConfig): ToolDefinition {
                 `;
 
                 // lokales LLM aufrufen
-                const llmUrl = 'http://localhost:11434/v1/chat/completions';
-                //const llmModel = 'qwen2.5:3b';
-                const llmModel = 'qwen3:8b';
-                const temperature = 0.2;
+                const llmUrl = serverConfig.LLM_CHAT_COMPLETIONS_URL;
+                //const llmModel = serverConfig.LLM_MODELL_3B;
+                const llmModel = serverConfig.LLM_MODELL_8B;
+                const temperature = Number(serverConfig.LLM_TEMPERATURE);
+
+                // Überprüfung zwingend Notwendig, da sie in der Configuration als optional gesetzt wurden im Tool aber benötig werden
+                if (!llmUrl){
+                    throw new Error('LLM_CHAT_COMPLETIONS_URL is missing in the server configurations');
+                }
+
+                if (!llmModel){
+                    throw new Error('A LLM_MODELL is missing in the server configurations');
+                }
+
+                if (Number.isNaN(temperature)){
+                    throw new Error('LLM_TEMPERATURE is missing in the server configurations');
+                }
 
                 const llmRequestBody = {
                     model: llmModel,
