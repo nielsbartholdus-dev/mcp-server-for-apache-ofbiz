@@ -23,7 +23,7 @@
     "ofbiz:use-api"
   ],
   "BACKEND_API_AUTH": "https://localhost:8443/rest/auth/token",
-  "BACKEND_ACCESS_TOKEN": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3ODEyNjc5NzcsImV4cCI6MTg2NzY2Nzk3NywiaXNzIjoiQXBhY2hlT0ZCaXoiLCJ1c2VyTG9naW5JZCI6IlJFU1RfQVBJX1RFU1RfVVNFUiJ9.AHNVPs7YiENr0hVPRH6oxREDIcMKeK0d1F8Wa21UHA8e2R7a_MRKRcT6i2jccpFaj3ncfEk4JpOH2UBioh4zpg",
+  "BACKEND_ACCESS_TOKEN": "",
   "LLM_CHAT_COMPLETIONS_URL": "http://localhost:11434/v1/chat/completions",
   "LLM_MODELL_3B": "qwen2.5:3b",
   "LLM_MODELL_8B": "qwen3:8b",
